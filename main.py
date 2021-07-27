@@ -51,13 +51,14 @@ class DataLoader():
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
 
-class FindDoppler():
+class DopplerFinder():
 
-    def __init__(self, filename, f_start, f_stop,
-                 tsteps, tsteps_valid, tdwidth, fftlen, shoulder_size, drift_rate_resolution,
-                 max_drift=4.0, min_drift=0.00001, snr=25.0, out_dir='./', obs_info=None, flagging=False,
-                 n_coarse_chan=1, append_output=False, blank_dc=True, gpu_id=0, precision=1, kernels=None,
-                 gpu_backend=False, log_level_int=logging.INFO):
+    def __init__(self, coarse_chan=0, n_ints_in_file, tstart, tsamp, f_start, f_stop, n_fine_chans, n_coarse_chan=1, 
+                 source_name, src_raj, src_dej, 
+                 filename, min_drift=0.00001, max_drift=4.0, out_dir='./', snr=25.0, flagging=False,
+                 obs_info=None, append_output=False, blank_dc=True,
+                 shoulder_size=0, drift_rate_resolution,
+                 kernels=None, gpu_backend=False, precision=1, gpu_id=0)
 
         if not kernels:
             self.kernels = Kernels(gpu_backend, precision, gpu_id)
@@ -66,17 +67,17 @@ class FindDoppler():
 
         # Data Object Header
         self.header = Map({
-            "coarse_chan": 1,
-            "obs_length": 0,
-            "DELTAF": 0,
-            "NAXIS1": 0,
-            "FCNTR": 0,
-            "baryv": 0,
-            "SOURCE": 0,
-            "MJD": 0,
-            "RA": 0,
-            "DEC": 0,
-            "DELTAT": 0,
+            "coarse_chan": 0, # Coarse channel number, NOT the same as n_coarse_chan == the amount of coarse channels?
+            "obs_length": n_ints_in_file * tsamp,
+            "DELTAF": (f_stop - f_start) / tsamp,
+            "NAXIS1": fftlen,
+            "FCNTR": (f_stop - f_start) / 2, # 1/2 way pt between the lowest and highest fine channel frequency
+            "baryv": 0, # Never used anywhere
+            "SOURCE": source_name,
+            "MJD": tstart, # Observation start time, from ATA block
+            "RA": src_raj,
+            "DEC": src_dej,
+            "DELTAT": tsamp, # Time step in seconds
             "max_drift_rate": max_drift,
         })
 
@@ -86,7 +87,7 @@ class FindDoppler():
                 "filename": filename,
                 "header": self.header
             }),
-            "log_level_int": log_level_int,
+            "log_level_int": logging.INFO,
             "min_drift": min_drift,
             "max_drift": max_drift,
             "out_dir": out_dir,
@@ -100,18 +101,17 @@ class FindDoppler():
             "kernels": self.kernels,
         })
 
-
         # Data Object
         self.data_dict = Map({
             "f_start": f_start,
             "f_stop": f_stop,
-            "tsteps": tsteps,
-            "tsteps_valid": tsteps_valid,
-            "tdwidth": tdwidth,
-            "fftlen": fftlen,
+            "tsteps": n_ints_in_file,
+            "tsteps_valid": n_ints_in_file,
+            "tdwidth": fftlen + shoulder_size * tsteps,
+            "fftlen": n_fine_chans / n_coarse_chan,
             "shoulder_size": shoulder_size,
             "drift_rate_resolution": drift_rate_resolution,
-            "coarse_chan": 1,
+            "coarse_chan": 0,
             "header": self.header
         })
 
@@ -129,9 +129,9 @@ class FindDoppler():
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
 
-    def search(self, spectra):
+    def find_ET(self, spectra):
         self.dataloader.load(spectra)
         fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
-find_doppler = FindDoppler("CH0_TIMESTAMP", 0.0, 1.0, 256, 1, 1, 1, 1, 1);
-find_doppler.search(np.zeros((256)))
+clancy = DopplerFinder("CH0_TIMESTAMP", 0.0, 1.0, 256, 1, 1, 1, 1, 1);
+clancy.find_ET(np.zeros((256)))
