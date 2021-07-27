@@ -71,7 +71,6 @@ class FindDoppler():
             "DELTAF": 0,
             "NAXIS1": 0,
             "FCNTR": 0,
-            "DELTAF": 0,
             "baryv": 0,
             "SOURCE": 0,
             "MJD": 0,
