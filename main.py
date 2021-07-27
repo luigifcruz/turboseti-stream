@@ -53,11 +53,10 @@ class DataLoader():
 
 class DopplerFinder():
 
-    def __init__(self, coarse_chan=0, n_ints_in_file, tstart, tsamp, f_start, f_stop, n_fine_chans, n_coarse_chan=1, 
-                 source_name, src_raj, src_dej, 
-                 filename, min_drift=0.00001, max_drift=4.0, out_dir='./', snr=25.0, flagging=False,
-                 obs_info=None, append_output=False, blank_dc=True,
-                 shoulder_size=0, drift_rate_resolution,
+    def __init__(self, filename, out_dir='./', source_name, src_raj, src_dej, tstart, tsamp, f_start, f_stop,
+                 coarse_chan=0, n_coarse_chan=1, n_fine_chans, n_ints_in_file, 
+                 min_drift=0.00001, max_drift=4.0, drift_rate_resolution, snr=25.0, 
+                 flagging=False, obs_info=None, append_output=False, blank_dc=True, shoulder_size=0,
                  kernels=None, gpu_backend=False, precision=1, gpu_id=0)
 
         if not kernels:
