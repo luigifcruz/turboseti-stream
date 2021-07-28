@@ -57,7 +57,7 @@ class DopplerFinder():
                  coarse_chan=0, n_coarse_chan=1, n_fine_chans, n_ints_in_file, 
                  min_drift=0.00001, max_drift=4.0, drift_rate_resolution, snr=25.0, 
                  flagging=False, obs_info=None, append_output=False, blank_dc=True, shoulder_size=0,
-                 kernels=None, gpu_backend=False, precision=1, gpu_id=0)
+                 kernels=None, gpu_backend=False, precision=1, gpu_id=0):
 
         if not kernels:
             self.kernels = Kernels(gpu_backend, precision, gpu_id)
