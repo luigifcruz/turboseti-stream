@@ -72,7 +72,7 @@ class DopplerFinder():
             "NAXIS1": fftlen,
             "FCNTR": (f_stop - f_start) / 2, # 1/2 way pt between the lowest and highest fine channel frequency
             "baryv": 0, # Never used anywhere
-            "SOURCE": source_name,
+            "SOURCE": source_name, # ATA Track Scan takes source name/id OR ra/dec OR az/el
             "MJD": tstart, # Observation start time, from ATA block
             "RA": src_raj,
             "DEC": src_dej,
