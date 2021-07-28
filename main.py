@@ -53,10 +53,9 @@ class DataLoader():
 
 class DopplerFinder():
 
-    def __init__(self, filename, source_name, src_raj, src_dej, tstart, tsamp, f_start, f_stop, 
-                 n_fine_chans, n_ints_in_file, drift_rate_resolution,
+    def __init__(self, filename, source_name, src_raj, src_dej, tstart, tsamp, f_start, f_stop, n_fine_chans, n_ints_in_file,
                  coarse_chan=0, n_coarse_chan=1, min_drift=0.00001, max_drift=4.0, snr=25.0, out_dir='./',
-                 flagging=False, obs_info=None, append_output=False, blank_dc=True, shoulder_size=0,
+                 flagging=False, obs_info=None, append_output=False, blank_dc=True,
                  kernels=None, gpu_backend=False, precision=1, gpu_id=0):
 
         if not kernels:
@@ -109,7 +108,7 @@ class DopplerFinder():
             "tdwidth": fftlen + shoulder_size * tsteps,
             "fftlen": n_fine_chans / n_coarse_chan,
             "shoulder_size": shoulder_size,
-            "drift_rate_resolution": drift_rate_resolution,
+            "drift_rate_resolution": (1e6 * np.abs(header['DELTAF'])) / self.header['obs_length'],
             "coarse_chan": 0,
             "header": self.header
         })
@@ -132,5 +131,5 @@ class DopplerFinder():
         self.dataloader.load(spectra)
         fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
-clancy = DopplerFinder("CH0_TIMESTAMP", 0.0, 1.0, 256, 1, 1, 1, 1, 1);
+clancy = DopplerFinder("CH0_TIMESTAMP", 0.0, 1.0, 256, 1, 1, 1, 1, 1)
 clancy.find_ET(np.zeros((256)))
