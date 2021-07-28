@@ -134,5 +134,5 @@ class DopplerFinder():
         
 # Example usage:
 # clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785, 
-#                        tstart=0, tsamp=0, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=1)
+#                        tstart=0, tsamp=1, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=16)
 # clancy.find_ET(np.zeros((256)))
