@@ -57,7 +57,7 @@ class DataLoader():
 class DopplerFinder():
 
     def __init__(self, filename, source_name, src_raj, src_dej, tstart, tsamp, f_start, f_stop, n_fine_chans, n_ints_in_file,
-                 coarse_chan=0, n_coarse_chan=1, min_drift=0.00001, max_drift=4.0, snr=25.0, out_dir='./',
+                 coarse_chan_num=0, n_coarse_chan=1, min_drift=0.00001, max_drift=4.0, snr=25.0, out_dir='./',
                  flagging=False, obs_info=None, append_output=False, blank_dc=True,
                  kernels=None, gpu_backend=False, precision=1, gpu_id=0):
 
@@ -121,7 +121,7 @@ class DopplerFinder():
             "fftlen": n_fine_chans // n_coarse_chan,
             "shoulder_size": shoulder_size,
             "drift_rate_resolution": (1e6 * np.abs(self.header['DELTAF'])) / self.header['obs_length'],
-            "coarse_chan": 0,
+            "coarse_chan": coarse_chan_num,
             "header": self.header
         })
 
@@ -145,7 +145,7 @@ class DopplerFinder():
 
         
     def find_ET_from_synth(self, spectra_file_path):
-        self.dataloader.load_npy_file(self, spectra_file_path)
+        self.dataloader.load_npy_file(spectra_file_path)
         fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
         
