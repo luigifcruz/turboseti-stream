@@ -16,18 +16,18 @@ NUMPY_PATH = "/tmp/spectra.npy"
 from main import DopplerFinder
 
 # Define observation parameters
-f_start = 3e9  #Hz
-TOTAL_BW = 1e6 #Hz
-tsamp=1 #seconds
-f_stop = f_start + TOTAL_BW
-n_fine_chans = int(1e6)
-ntime = int(64)
-mjd=59423.2
+f_start = 8437.625 # MHz
+foff = 1e-6 # MHz
+n_fine_chans = int(4e6)
+f_stop = f_start + (n_fine_chans - 1) * foff # MHz
+tsamp = 1 # seconds
+ntime = int(60) # seconds
+mjd = 59423.2
 
 
 print("Clancy is being initialised")
 clancy = DopplerFinder(filename="CH0_TIMESTAMP.h5",
-                       source_name="test",
+                       source_name="SYNTHETIC",
                        src_raj=7.456805,
                        src_dej=5.225785,
                        tstart=mjd,
