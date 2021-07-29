@@ -4,3 +4,7 @@ A "hack-ey" way to get turboSETI to accept data in a streaming fashion, i.e. str
 This is especially useful for real-time pipelines where data need to be analysed as they are being recorded.
 
 The aim is to eventually integrate this piece of code into a GNURadio block to perform SETI searches with the platform.
+
+## Requirements:
+- [turboseti](https://github.com/UCBerkeleySETI/turbo_seti) (also submodule'd)
+- [setigen](https://github.com/bbrzycki/setigen)
