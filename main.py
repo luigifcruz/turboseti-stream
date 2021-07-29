@@ -47,9 +47,11 @@ class DataLoader():
 
     def load(self, spectra):
         self.spectra = spectra
+        print("turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
 
     def load_npy_file(self, spectra_file_path):
         self.spectra = np.load(spectra_file_path)
+        print("turboseti-stream DataLoader load_npy_file: spectra shape:", self.spectra.shape)
 
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
