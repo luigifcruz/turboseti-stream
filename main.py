@@ -63,13 +63,22 @@ class DopplerFinder():
         else:
             self.kernels = kernels
 
+        if obs_info is None:
+            obs_info = {'pulsar': 0, 'pulsar_found': 0, 'pulsar_dm': 0.0, 'pulsar_snr': 0.0,
+                        'pulsar_stats': self.kernels.np.zeros(6), 'RFI_level': 0.0, 'Mean_SEFD': 0.0, 'psrflux_Sens': 0.0,
+                        'SEFDs_val': [0.0], 'SEFDs_freq': [0.0], 'SEFDs_freq_up': [0.0]}
+
+        fftlen = n_fine_chans
+        shoulder_size = 0
+        tsteps = n_ints_in_file
+
         # Data Object Header
         self.header = Map({
             "coarse_chan": 0, # Coarse channel number, NOT the same as n_coarse_chan == the amount of coarse channels?
             "obs_length": n_ints_in_file * tsamp,
-            "DELTAF": (f_stop - f_start) / tsamp,
+            "DELTAF": (f_stop - f_start) / n_fine_chans * 1e-6,
             "NAXIS1": fftlen,
-            "FCNTR": (f_stop - f_start) / 2, # 1/2 way pt between the lowest and highest fine channel frequency
+            "FCNTR": ((f_stop + f_start) / 2) * 1e-6, # 1/2 way pt between the lowest and highest fine channel frequency
             "baryv": 0, # Never used anywhere
             "SOURCE": source_name, # ATA Track Scan takes source name/id OR ra/dec OR az/el
             "MJD": tstart, # Observation start time, from ATA block
@@ -105,10 +114,10 @@ class DopplerFinder():
             "f_stop": f_stop,
             "tsteps": n_ints_in_file,
             "tsteps_valid": n_ints_in_file,
-            "tdwidth": fftlen + shoulder_size * tsteps,
-            "fftlen": n_fine_chans / n_coarse_chan,
+            "tdwidth": int(fftlen + shoulder_size * tsteps),
+            "fftlen": n_fine_chans // n_coarse_chan,
             "shoulder_size": shoulder_size,
-            "drift_rate_resolution": (1e6 * np.abs(header['DELTAF'])) / self.header['obs_length'],
+            "drift_rate_resolution": (1e6 * np.abs(self.header['DELTAF'])) / self.header['obs_length'],
             "coarse_chan": 0,
             "header": self.header
         })
