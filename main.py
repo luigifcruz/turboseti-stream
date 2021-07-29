@@ -6,6 +6,7 @@ from pkg_resources import resource_filename
 from turbo_seti.find_doppler.kernels import *
 import turbo_seti.find_doppler.find_doppler as fd
 
+
 class Map(dict):
     """
     Example:
@@ -44,9 +45,15 @@ class DataLoader():
     def __init__(self, data_obj, drift_indices):
         self.drift_indices = drift_indices
         self.data_obj = data_obj
+        print("turboseti-stream DataLoader __init__: data_obj:", self.data_obj)
 
     def load(self, spectra):
         self.spectra = spectra
+        print("turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
+
+    def load_npy_file(self, spectra_file_path):
+        self.spectra = np.load(spectra_file_path)
+        print("turboseti-stream DataLoader load_npy_file: spectra shape:", self.spectra.shape)
 
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
@@ -54,7 +61,7 @@ class DataLoader():
 class DopplerFinder():
 
     def __init__(self, filename, source_name, src_raj, src_dej, tstart, tsamp, f_start, f_stop, n_fine_chans, n_ints_in_file,
-                 coarse_chan=0, n_coarse_chan=1, min_drift=0.00001, max_drift=4.0, snr=25.0, out_dir='./',
+                 coarse_chan_num=0, n_coarse_chan=1, min_drift=0.00001, max_drift=4.0, snr=25.0, out_dir='./',
                  flagging=False, obs_info=None, append_output=False, blank_dc=True,
                  kernels=None, gpu_backend=False, precision=1, gpu_id=0):
 
@@ -118,21 +125,23 @@ class DopplerFinder():
             "fftlen": n_fine_chans // n_coarse_chan,
             "shoulder_size": shoulder_size,
             "drift_rate_resolution": (1e6 * np.abs(self.header['DELTAF'])) / self.header['obs_length'],
-            "coarse_chan": 0,
+            "coarse_chan": coarse_chan_num,
             "header": self.header
         })
 
         # Create Custom Data Loader
-        dia_num = int(np.log2(self.data_dict.tsteps))
-        file_path = resource_filename('turbo_seti', f'/drift_indexes/drift_indexes_array_{dia_num}.txt')
-
-        if not os.path.isfile(file_path):
-            raise ValueError(":(")
+        dia_num = int(np.log2(self.data_dict.tsteps)) + 1
+        print("DEBUG drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
+        file_path = resource_filename('turbo_seti', f'drift_indexes/drift_indexes_array_{dia_num}.txt')
+        print("DEBUG drift_indexes file_path={}".format(file_path))
+        assert os.path.isfile(file_path) # File exists?
 
         di_array = np.array(np.genfromtxt(file_path, delimiter=' ', dtype=int))
+        print("DEBUG drift_indexes di_array.shape:", di_array.shape)
 
-        ts2 = int(self.data_dict.tsteps/2)
-        drift_indexes = di_array[(self.data_dict.tsteps_valid - 1 - ts2), 0:self.data_dict.tsteps_valid]
+        ts_mid = int(self.data_dict.tsteps / 2)
+        print("DEBUG self.data_dict.tsteps - 1 - ts_mid:", self.data_dict.tsteps - 1 - ts_mid)
+        drift_indexes = di_array[(self.data_dict.tsteps - 1 - ts_mid), 0:self.data_dict.tsteps]
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
 
@@ -141,7 +150,12 @@ class DopplerFinder():
         fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
         
+    def find_ET_from_synth(self, spectra_file_path):
+        self.dataloader.load_npy_file(spectra_file_path)
+
+        
 # Example usage:
 # clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785, 
 #                        tstart=0, tsamp=1, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=16)
 # clancy.find_ET(np.zeros((256)))
+# clancy.find_ET_from_synth("/path-to-synthetic-gnu-radio-data.npy")
