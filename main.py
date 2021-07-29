@@ -6,6 +6,7 @@ from pkg_resources import resource_filename
 from turbo_seti.find_doppler.kernels import *
 import turbo_seti.find_doppler.find_doppler as fd
 
+
 class Map(dict):
     """
     Example:
@@ -130,15 +131,18 @@ class DopplerFinder():
 
         # Create Custom Data Loader
         dia_num = int(np.log2(self.data_dict.tsteps))
-        file_path = resource_filename('turbo_seti', f'/drift_indexes/drift_indexes_array_{dia_num}.txt')
+        print("DEBUG drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
+        file_path = resource_filename('turbo_seti', f'drift_indexes/drift_indexes_array_{dia_num}.txt')
+        print("DEBUG drift_indexes file_path={}".format(file_path))
 
-        if not os.path.isfile(file_path):
-            raise ValueError(":(")
+        assert os.path.isfile(file_path) # File exists?
 
         di_array = np.array(np.genfromtxt(file_path, delimiter=' ', dtype=int))
+        print("DEBUG drift_indexes di_array.shape:", di_array.shape)
 
-        ts2 = int(self.data_dict.tsteps/2)
-        drift_indexes = di_array[(self.data_dict.tsteps_valid - 1 - ts2), 0:self.data_dict.tsteps_valid]
+        ts2 = int(self.data_dict.tsteps / 2)
+        print("DEBUG self.data_dict.tsteps - 1 - ts2:", self.data_dict.tsteps - 1 - ts2)
+        drift_indexes = di_array[(self.data_dict.tsteps - 1 - ts2), 0:self.data_dict.tsteps]
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
 
@@ -149,7 +153,6 @@ class DopplerFinder():
         
     def find_ET_from_synth(self, spectra_file_path):
         self.dataloader.load_npy_file(spectra_file_path)
-        fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
         
 # Example usage:
