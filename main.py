@@ -48,6 +48,9 @@ class DataLoader():
     def load(self, spectra):
         self.spectra = spectra
 
+    def load_npy_file(self, spectra_file_path):
+        self.spectra = np.load(spectra_file_path)
+
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
 
@@ -141,7 +144,13 @@ class DopplerFinder():
         fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
         
+    def find_ET_from_synth(self, spectra_file_path):
+        self.dataloader.load_npy_file(self, spectra_file_path)
+        fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
+
+        
 # Example usage:
 # clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785, 
 #                        tstart=0, tsamp=1, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=16)
 # clancy.find_ET(np.zeros((256)))
+# clancy.find_ET_from_synth("/path-to-synthetic-gnu-radio-data.npy")
