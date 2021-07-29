@@ -130,7 +130,7 @@ class DopplerFinder():
         })
 
         # Create Custom Data Loader
-        dia_num = int(np.log2(self.data_dict.tsteps)) + 1
+        dia_num = int(np.log2(self.data_dict.tsteps))
         print("DEBUG drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
         file_path = resource_filename('turbo_seti', f'drift_indexes/drift_indexes_array_{dia_num}.txt')
         print("DEBUG drift_indexes file_path={}".format(file_path))
