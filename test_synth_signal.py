@@ -6,7 +6,7 @@ NUMPY_PATH = "/tmp/spectra.npy"
 # Be sure to run spectra_gen_main.py first:
 #-------------------------------------------------
 # cd spectra_gen
-# python3  spectra_gen_main.py  /tmp/spectra.npy
+# python3  spectra_gen_main.py  NUMPY_PATH
 #-------------------------------------------------
 # Replace "/tmp/spectra.npy" with whatever path is suitable.
 #-------------------------------------------------
