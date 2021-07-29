@@ -25,7 +25,7 @@ ntime = int(64)
 mjd=59423.2
 
 
-print("Clancy's being initialised")
+print("Clancy is being initialised")
 clancy = DopplerFinder(filename="CH0_TIMESTAMP",
                        source_name="test",
                        src_raj=7.456805,
@@ -37,5 +37,5 @@ clancy = DopplerFinder(filename="CH0_TIMESTAMP",
                        n_fine_chans=n_fine_chans,
                        n_ints_in_file=ntime)
 
-print("Clancy's searching for ET")
+print("Clancy is searching for ET")
 clancy.find_ET_from_synth(NUMPY_PATH)
