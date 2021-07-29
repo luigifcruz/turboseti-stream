@@ -1,6 +1,15 @@
 r""" Test with synthetic data"""
 
-# Be sure to run spectra_gen_main.py first.
+NUMPY_PATH = ""/tmp/spectra.npy""
+
+#-------------------------------------------------
+# Be sure to run spectra_gen_main.py first:
+#-------------------------------------------------
+# cd spectra_gen
+# python3  spectra_gen_main.py  /tmp/spectra.npy
+#-------------------------------------------------
+# Replace "/tmp/spectra.npy" with whatever path is suitable. 
+#-------------------------------------------------
 
 #import matplotlib.pyplot as plt
 
@@ -29,4 +38,4 @@ clancy = DopplerFinder(filename="CH0_TIMESTAMP",
                        n_ints_in_file=ntime)
 
 print("Clancy's searching for ET")
-clancy.find_ET_from_synth("/tmp/spectra.npy")
+clancy.find_ET_from_synth(NUMPY_PATH)
