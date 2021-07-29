@@ -44,6 +44,7 @@ class DataLoader():
     def __init__(self, data_obj, drift_indices):
         self.drift_indices = drift_indices
         self.data_obj = data_obj
+        print("turboseti-stream DataLoader __init__: data_obj:", self.data_obj)
 
     def load(self, spectra):
         self.spectra = spectra
