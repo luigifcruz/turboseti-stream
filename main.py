@@ -140,9 +140,9 @@ class DopplerFinder():
         di_array = np.array(np.genfromtxt(file_path, delimiter=' ', dtype=int))
         print("DEBUG drift_indexes di_array.shape:", di_array.shape)
 
-        ts2 = int(self.data_dict.tsteps / 2)
-        print("DEBUG self.data_dict.tsteps - 1 - ts2:", self.data_dict.tsteps - 1 - ts2)
-        drift_indexes = di_array[(self.data_dict.tsteps - 1 - ts2), 0:self.data_dict.tsteps]
+        ts_mid = int(self.data_dict.tsteps / 2)
+        print("DEBUG self.data_dict.tsteps - 1 - ts_mid:", self.data_dict.tsteps - 1 - ts_mid)
+        drift_indexes = di_array[(self.data_dict.tsteps - 1 - ts_mid), 0:self.data_dict.tsteps]
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
 
