@@ -17,7 +17,7 @@ def generate_npy_file(outpath):
     Parameters:
         outpath - Path of where to store the resultant numpy file (npy).
     """
-    print("spectra_gen_main: Begin outpath={}".format(outpath))
+    print("spectra_gen_main: Begin outpath = {}".format(outpath))
     t1 = time.time()
 
     # Set up setigne parameters
@@ -64,20 +64,9 @@ def generate_npy_file(outpath):
     # Save the frame as a Numpy file.
     frame.save_npy(outpath)
     
-    # Report setigen save characteristics
-    print("spectra_gen_main: Re-shaping Setigen-saved npy data")
-    data = np.load(outpath)
-    print("spectra_gen_main: Setigen shape = {}".format(data.shape))
-
-    # Re-shape from 2D to 3D
-    ntime = data.shape[0]
-    nfreq = data.shape[1]
-    data = np.reshape(data, (ntime, 1, nfreq))
-    np.save(outpath, data)
-
-    # Report final characteristics (after reshaping)
+    # Report npy characteristics
     file_size = os.path.getsize(outpath)
-    print("spectra_gen_main: Final shape = {}".format(data.shape))
+    print("spectra_gen_main: 2D shape = {}".format(frame.data.shape))
     print("spectra_gen_main: File size = {} MB".format(file_size / int(1e6)))
     print("spectra_gen_main: End, elapsed time = {:0.1f} s".format(time.time() - t1))
 
