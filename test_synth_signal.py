@@ -1,6 +1,6 @@
 r""" Test with synthetic data"""
 
-NUMPY_PATH = ""/tmp/spectra.npy""
+NUMPY_PATH = "/tmp/spectra.npy"
 
 #-------------------------------------------------
 # Be sure to run spectra_gen_main.py first:
@@ -8,7 +8,7 @@ NUMPY_PATH = ""/tmp/spectra.npy""
 # cd spectra_gen
 # python3  spectra_gen_main.py  /tmp/spectra.npy
 #-------------------------------------------------
-# Replace "/tmp/spectra.npy" with whatever path is suitable. 
+# Replace "/tmp/spectra.npy" with whatever path is suitable.
 #-------------------------------------------------
 
 #import matplotlib.pyplot as plt
