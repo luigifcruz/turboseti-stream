@@ -152,6 +152,7 @@ class DopplerFinder():
         
     def find_ET_from_synth(self, spectra_file_path):
         self.dataloader.load_npy_file(spectra_file_path)
+        fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
 
         
 # Example usage:
