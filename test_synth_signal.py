@@ -1,5 +1,7 @@
 r""" Test with synthetic data"""
 
+# Be sure to run spectra_gen_main.py first.
+
 #import matplotlib.pyplot as plt
 
 from main import DopplerFinder
