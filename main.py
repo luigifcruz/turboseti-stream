@@ -82,7 +82,7 @@ class DopplerFinder():
                  coarse_chan_num=0,
                  n_coarse_chan=1,
                  min_drift=0.00001,
-                 max_drift=10.0,
+                 max_drift=4.0,
                  snr=25.0,
                  out_dir='./',
                  flagging=False,
