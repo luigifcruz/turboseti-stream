@@ -1,6 +1,7 @@
+import logging
 from astropy import units as u
 import setigen as stg
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 from main import DopplerFinder
 
@@ -40,7 +41,8 @@ print("Done.")
 
 print("Clancy's being initialised")
 clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="test", src_raj=7.456805, src_dej=5.225785,
-                        tstart=mjd, tsamp=tsamp, f_start=f_start, f_stop=f_stop, n_fine_chans=n_fine_chans, 
+                        tstart=mjd, tsamp=tsamp, f_start=f_start, f_stop=f_stop, n_fine_chans=n_fine_chans,
+                        log_level_int=logging.INFO,
                         n_ints_in_file=ntime)
 
 print("Clancy's searching for ET")

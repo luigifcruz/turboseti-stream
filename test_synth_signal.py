@@ -1,5 +1,7 @@
 r""" Test with synthetic data"""
 
+import logging
+
 INFILE = "/tmp/spectra.fil"
 
 #-------------------------------------------------
@@ -17,7 +19,8 @@ from main import DopplerFinder
 
 # Define observation parameters
 n_fine_chans = int(4e6) # setigen fchans
-ntime = 64 # seconds,     setigen tchans
+n_fine_chans = 1024
+ntime = 60 # seconds,     setigen tchans
 f_start = 8437.625 # MHz, setigen fch1
 foff = 1e-6 # MHz,        setigen df
 f_stop = f_start + (n_fine_chans - 1) * foff # MHz
@@ -29,6 +32,7 @@ mjd = 59423.2
 print("Clancy is being initialised")
 clancy = DopplerFinder(filename="CH0_TIMESTAMP.h5",
                        source_name="SYNTHETIC",
+                       log_level_int=logging.INFO,
                        src_raj=7.456805,
                        src_dej=5.225785,
                        tstart=mjd,
