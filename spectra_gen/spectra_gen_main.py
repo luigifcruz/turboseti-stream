@@ -4,6 +4,7 @@ Main program for generating synthetic Gnu Radio spectra
 
 import os
 import time
+from astropy import units as u
 from argparse import ArgumentParser
 import setigen as stg
 from spectra_gen_defs import SetigenParms, VERSION, DEBUGGING
@@ -23,8 +24,8 @@ def generate_fil_file(outpath):
     stg_parms = SetigenParms()
 
     # Instantiate a setigen Frame object
-    frame = stg.Frame(fchans=stg_parms.fchans,
-                      tchans=stg_parms.tchans,
+    frame = stg.Frame(fchans=stg_parms.fchans * u.pixel,
+                      tchans=stg_parms.tchans * u.pixel,
                       df=stg_parms.df,
                       dt=stg_parms.dt,
                       fch1=stg_parms.fch1,
@@ -32,9 +33,7 @@ def generate_fil_file(outpath):
 
     # Add noise to stg object.
     if stg_parms.adding_noise:
-        frame.add_noise(x_mean=0, 
-                        x_std=stg_parms.noise_std, 
-                        noise_type="gaussian")
+        frame.add_noise(x_mean=10, noise_type='chi2')
 
     # Signal 1 will be detected.
     signal_1_intensity = frame.get_intensity(snr=stg_parms.snr_1)
