@@ -11,7 +11,7 @@ BW = 1 #MHz
 tsamp=1 #seconds
 f_stop = f_start + BW
 n_fine_chans = int(1e6)
-ntime = int(64)
+ntime = int(60)
 mjd=59423.2
 
 
