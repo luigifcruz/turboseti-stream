@@ -6,8 +6,8 @@ from main import DopplerFinder
 
 
 # Define observation parameters
-f_start = 3e9  #Hz
-BW = 1e6 #Hz
+f_start = 3e3  #MHz
+BW = 1 #MHz
 tsamp=1 #seconds
 f_stop = f_start + BW
 n_fine_chans = int(1e6)
@@ -24,9 +24,9 @@ print("Creating fake signal...")
 # Create a fake signal
 frame = stg.Frame(fchans=n_fine_chans*u.pixel,
                   tchans=ntime*u.pixel,
-                  df=BW/n_fine_chans*u.Hz,
+                  df=BW/n_fine_chans*u.MHz,
                   dt=tsamp*u.s,
-                  fch1=f_start*u.Hz)
+                  fch1=f_start*u.MHz)
 
 noise = frame.add_noise(x_mean=10, noise_type='chi2')
 signal = frame.add_signal(stg.constant_path(f_start=frame.get_frequency(index=n_fine_chans/2), #injecting exactly in middle of band

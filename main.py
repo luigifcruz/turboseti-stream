@@ -6,6 +6,8 @@ from pkg_resources import resource_filename
 
 from turbo_seti.find_doppler.kernels import *
 import turbo_seti.find_doppler.find_doppler as fd
+from turbo_seti.find_doppler.file_writers import FileWriter, LogWriter
+from blimpy import Waterfall
 
 
 DEBUGGING = True
@@ -55,19 +57,40 @@ class DataLoader():
         self.spectra = spectra
         print("turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
 
-    def load_npy_file(self, spectra_file_path):
-        self.spectra = np.load(spectra_file_path)
-        print("turboseti-stream DataLoader load_npy_file: spectra shape:", self.spectra.shape)
+    def load_fil_file(self, spectra_file_path):
+        wf = Waterfall(spectra_file_path)
+        self.spectra = wf.data
+        print("turboseti-stream DataLoader load_fil_file: spectra shape:", self.spectra.shape)
 
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
 
 class DopplerFinder():
 
-    def __init__(self, filename, source_name, src_raj, src_dej, tstart, tsamp, f_start, f_stop, n_fine_chans, n_ints_in_file,
-                 coarse_chan_num=0, n_coarse_chan=1, min_drift=0.00001, max_drift=4.0, snr=25.0, out_dir='./',
-                 flagging=False, obs_info=None, append_output=False, blank_dc=True,
-                 kernels=None, gpu_backend=False, precision=1, gpu_id=0):
+    def __init__(self, filename, source_name, src_raj, src_dej,
+                 tstart,
+                 tsamp,
+                 f_start,
+                 f_stop,
+                 n_fine_chans,
+                 n_ints_in_file,
+                 coarse_chan_num=0,
+                 n_coarse_chan=1,
+                 min_drift=0.00001,
+                 max_drift=10.0,
+                 snr=25.0,
+                 out_dir='./',
+                 flagging=False,
+                 obs_info=None,
+                 append_output=False,
+                 blank_dc=True,
+                 kernels=None,
+                 gpu_backend=False,
+                 precision=1,
+                 gpu_id=0):
+
+        self.filename = filename
+        self.out_dir = out_dir
 
         if not kernels:
             self.kernels = Kernels(gpu_backend, precision, gpu_id)
@@ -87,9 +110,9 @@ class DopplerFinder():
         self.header = Map({
             "coarse_chan": 0, # Coarse channel number, NOT the same as n_coarse_chan == the amount of coarse channels?
             "obs_length": n_ints_in_file * tsamp,
-            "DELTAF": (f_stop - f_start) / n_fine_chans * 1e-6,
+            "DELTAF": (f_stop - f_start) / n_fine_chans,
             "NAXIS1": fftlen,
-            "FCNTR": ((f_stop + f_start) / 2) * 1e-6, # 1/2 way pt between the lowest and highest fine channel frequency
+            "FCNTR": (f_stop + f_start) / 2, # 1/2 way pt between the lowest and highest fine channel frequency
             "baryv": 0, # Never used anywhere
             "SOURCE": source_name, # ATA Track Scan takes source name/id OR ra/dec OR az/el
             "MJD": tstart, # Observation start time, from ATA block
@@ -153,18 +176,33 @@ class DopplerFinder():
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
 
+    def _find_ET_common(self):
+        wfilename = self.filename.split('/')[-1].replace('.h5', '').replace('.fil', '')
+        path_log = '{}/{}.log'.format(self.out_dir.rstrip('/'), wfilename)
+        path_dat = '{}/{}.dat'.format(self.out_dir.rstrip('/'), wfilename)
+        if os.path.exists(path_log):
+            os.remove(path_log)
+        if os.path.exists(path_dat):
+            os.remove(path_dat)
+        logwriter = LogWriter(path_log)
+        filewriter = FileWriter(path_dat, self.header)
+        fd.search_coarse_channel(self.data_dict,
+                                 self.find_doppler_instance,
+                                 dataloader=self.dataloader,
+                                 logwriter=logwriter,
+                                 filewriter=filewriter)
+
     def find_ET(self, spectra):
         self.dataloader.load(spectra)
-        fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
+        self._find_ET_common()
 
-        
     def find_ET_from_synth(self, spectra_file_path):
-        self.dataloader.load_npy_file(spectra_file_path)
-        fd.search_coarse_channel(self.data_dict, self.find_doppler_instance, dataloader=self.dataloader)
+        self.dataloader.load_fil_file(spectra_file_path)
+        self._find_ET_common()
 
-        
+
 # Example usage:
-# clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785, 
+# clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785,
 #                        tstart=0, tsamp=1, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=16)
 # clancy.find_ET(np.zeros((256)))
 # clancy.find_ET_from_synth("/path-to-synthetic-gnu-radio-data.npy")
