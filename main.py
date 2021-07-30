@@ -52,16 +52,19 @@ class DataLoader():
     def __init__(self, data_obj, drift_indices):
         self.drift_indices = drift_indices
         self.data_obj = data_obj
-        print("turboseti-stream DataLoader __init__: data_obj:", self.data_obj)
+        if DEBUGGING:
+            print("DEBUG turboseti-stream DataLoader __init__: data_obj:", self.data_obj)
 
     def load(self, spectra):
         self.spectra = spectra
-        print("turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
+        if DEBUGGING:
+            print("DEBUG turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
 
     def load_file(self, spectra_file_path):
         frame = stg.Frame(spectra_file_path)
         self.spectra = frame.data
-        print("turboseti-stream DataLoader load_file: spectra shape:", self.spectra.shape)
+        if DEBUGGING:
+            print("DEBUG turboseti-stream DataLoader load_file: spectra shape:", self.spectra.shape)
 
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
@@ -75,6 +78,7 @@ class DopplerFinder():
                  f_stop,
                  n_fine_chans,
                  n_ints_in_file,
+                 log_level_int=logging.INFO,
                  coarse_chan_num=0,
                  n_coarse_chan=1,
                  min_drift=0.00001,
@@ -130,7 +134,7 @@ class DopplerFinder():
                 "filename": filename,
                 "header": self.header
             }),
-            "log_level_int": logging.INFO,
+            "log_level_int": log_level_int,
             "min_drift": min_drift,
             "max_drift": max_drift,
             "out_dir": out_dir,
@@ -194,7 +198,8 @@ class DopplerFinder():
                                  dataloader=self.dataloader,
                                  logwriter=logwriter,
                                  filewriter=filewriter)
-        print("turboseti-stream search_coarse_channel() completed in {:0.1f}s"
+        if DEBUGGING:
+            print("DEBUG turboseti-stream search_coarse_channel() completed in {:0.1f}s"
               .format(time.time() - t1))
 
     def find_ET(self, spectra):
