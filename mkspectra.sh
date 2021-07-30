@@ -1,2 +1,6 @@
+#!/usr/bin/bash
 
-python3 spectra_gen/spectra_gen_main.py /tmp/spectra.fil
+FILESTEM=/tmp/spectra
+rm $FILESTEM.* 2> /dev/null
+rm CH0* 2> /dev/null
+python3 spectra_gen/spectra_gen_main.py $FILESTEM.fil
