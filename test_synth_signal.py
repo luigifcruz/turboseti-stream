@@ -1,12 +1,12 @@
 r""" Test with synthetic data"""
 
-FILTERBANK = "/tmp/spectra.fil"
+INFILE = "/tmp/spectra.fil"
 
 #-------------------------------------------------
 # Be sure to run spectra_gen_main.py first:
 #-------------------------------------------------
 # cd spectra_gen
-# python3  spectra_gen_main.py  FILTERBANK
+# python3  spectra_gen_main.py  INFILE
 #-------------------------------------------------
 # Replace "/tmp/spectra.npy" with whatever path is suitable.
 #-------------------------------------------------
@@ -39,4 +39,4 @@ clancy = DopplerFinder(filename="CH0_TIMESTAMP.h5",
                        n_ints_in_file=ntime)
 
 print("Clancy is searching for ET")
-clancy.find_ET_from_synth(FILTERBANK)
+clancy.find_ET_from_file(INFILE)

@@ -4,10 +4,10 @@ import numpy as np
 import math
 from pkg_resources import resource_filename
 
+import setigen as stg
 from turbo_seti.find_doppler.kernels import *
 import turbo_seti.find_doppler.find_doppler as fd
 from turbo_seti.find_doppler.file_writers import FileWriter, LogWriter
-from blimpy import Waterfall
 
 
 DEBUGGING = True
@@ -57,10 +57,10 @@ class DataLoader():
         self.spectra = spectra
         print("turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
 
-    def load_fil_file(self, spectra_file_path):
-        wf = Waterfall(spectra_file_path)
-        self.spectra = wf.data
-        print("turboseti-stream DataLoader load_fil_file: spectra shape:", self.spectra.shape)
+    def load_file(self, spectra_file_path):
+        frame = stg.Frame(spectra_file_path)
+        self.spectra = frame.data
+        print("turboseti-stream DataLoader load_file: spectra shape:", self.spectra.shape)
 
     def get(self):
         return (self.data_obj, self.spectra, self.drift_indices)
@@ -196,8 +196,8 @@ class DopplerFinder():
         self.dataloader.load(spectra)
         self._find_ET_common()
 
-    def find_ET_from_synth(self, spectra_file_path):
-        self.dataloader.load_fil_file(spectra_file_path)
+    def find_ET_from_file(self, spectra_file_path):
+        self.dataloader.load_file(spectra_file_path)
         self._find_ET_common()
 
 
@@ -205,4 +205,4 @@ class DopplerFinder():
 # clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785,
 #                        tstart=0, tsamp=1, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=16)
 # clancy.find_ET(np.zeros((256)))
-# clancy.find_ET_from_synth("/path-to-synthetic-gnu-radio-data.npy")
+# clancy.find_ET_from_file("/path-to-synthetic-gnu-radio-data.npy")
