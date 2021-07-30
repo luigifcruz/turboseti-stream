@@ -1,8 +1,12 @@
 r""" Test with synthetic data"""
 
 import logging
+from spectra_gen.spectra_gen_config import ConfigObject
+from main import DopplerFinder
+
 
 INFILE = "/tmp/spectra.fil"
+
 
 #-------------------------------------------------
 # Be sure to run spectra_gen_main.py first:
@@ -13,17 +17,15 @@ INFILE = "/tmp/spectra.fil"
 # Replace "/tmp/spectra.npy" with whatever path is suitable.
 #-------------------------------------------------
 
-#import matplotlib.pyplot as plt
-
-from main import DopplerFinder
+cfg = ConfigObject("spectra_gen/spectra_gen.cfg")
 
 # Define observation parameters
-n_fine_chans = int(4e6) # setigen fchans
-ntime = 64 # seconds,     setigen tchans
-f_start = 8437.625 # MHz, setigen fch1
-foff = 1e-6 # MHz,        setigen df
+n_fine_chans = cfg.fchans # setigen fchans
+f_start = cfg.fch1 # MHz, setigen fch1
+foff = cfg.df # MHz,        setigen df
 f_stop = f_start + (n_fine_chans - 1) * foff # MHz
-tsamp = 1 # seconds,      setigen dt
+ntime = cfg.n_ints_in_file # seconds,     setigen tchans
+tsamp = cfg.dt # seconds,      setigen dt
 
 mjd = 59423.2
 
