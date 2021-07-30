@@ -17,7 +17,7 @@ class SetigenParms:
         # Parameters for all signals
         self.fchans = int(4e6) # number of (fine) channels
         self.tchans = 64 # number of time samples
-        self.df = 1.0 * u.Hz # fine channel width in Hz
+        self.df = 1e-6 * u.MHz # fine channel width in Hz
         self.dt = 1.0 * u.s #sampling time in seconds
         self.fch1 = 8437.625 * u.MHz # Starting frequency in MHz
         self.adding_noise = True # Add noise?
