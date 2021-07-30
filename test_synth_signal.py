@@ -6,6 +6,7 @@ from main import DopplerFinder
 
 
 INFILE = "/tmp/spectra.fil"
+MAX_DRIFT_RATE = 10.0
 
 
 #-------------------------------------------------
@@ -33,6 +34,7 @@ mjd = 59423.2
 print("Clancy is being initialised")
 clancy = DopplerFinder(filename="CH0_TIMESTAMP.h5",
                        source_name="SYNTHETIC",
+                       max_drift=MAX_DRIFT_RATE,
                        log_level_int=logging.INFO,
                        src_raj=7.456805,
                        src_dej=5.225785,
