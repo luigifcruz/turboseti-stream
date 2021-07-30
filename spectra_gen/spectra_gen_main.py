@@ -70,8 +70,6 @@ def generate_npy_file(outpath):
     print("spectra_gen_main: File size = {} MB".format(file_size / int(1e6)))
     print("spectra_gen_main: End, elapsed time = {:0.1f} s".format(time.time() - t1))
 
-    frame.save_fil("/tmp/spectra.fil")
-
 
 def main(args=None):
     r"""
