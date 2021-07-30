@@ -19,7 +19,6 @@ from main import DopplerFinder
 
 # Define observation parameters
 n_fine_chans = int(4e6) # setigen fchans
-n_fine_chans = 1024
 ntime = 64 # seconds,     setigen tchans
 f_start = 8437.625 # MHz, setigen fch1
 foff = 1e-6 # MHz,        setigen df
