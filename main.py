@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 import numpy as np
 import math
@@ -104,6 +105,7 @@ class DopplerFinder():
 
         fftlen = n_fine_chans
         shoulder_size = 0
+        tsteps_valid = n_ints_in_file
         tsteps = int(math.pow(2, math.ceil(np.log2(math.floor(n_ints_in_file)))))
 
         # Data Object Header
@@ -146,7 +148,7 @@ class DopplerFinder():
         self.data_dict = Map({
             "f_start": f_start,
             "f_stop": f_stop,
-            "tsteps_valid": n_ints_in_file,
+            "tsteps_valid": tsteps_valid,
             "tsteps": tsteps,
             "tdwidth": int(fftlen + shoulder_size * tsteps),
             "fftlen": n_fine_chans // n_coarse_chan,
@@ -160,19 +162,19 @@ class DopplerFinder():
         dia_num = int(np.log2(self.data_dict.tsteps))
         file_path = resource_filename('turbo_seti', f'drift_indexes/drift_indexes_array_{dia_num}.txt')
         if DEBUGGING:
-            print("DEBUG drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
-            print("DEBUG drift_indexes file_path={}".format(file_path))
+            print("DEBUG turboseti-stream drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
+            print("DEBUG turboseti-stream drift_indexes file_path={}".format(file_path))
 
         assert os.path.isfile(file_path) # File exists?
 
         di_array = np.array(np.genfromtxt(file_path, delimiter=' ', dtype=int))
         if DEBUGGING:
-            print("DEBUG drift_indexes di_array.shape:", di_array.shape)
+            print("DEBUG turboseti-stream drift_indexes di_array.shape:", di_array.shape)
 
-        ts_mid = int(self.data_dict.tsteps / 2)
+        ts2 = int(self.data_dict.tsteps / 2)
         if DEBUGGING:
-            print("DEBUG self.data_dict.tsteps - 1 - ts_mid:", self.data_dict.tsteps - 1 - ts_mid)
-        drift_indexes = di_array[(self.data_dict.tsteps - 1 - ts_mid), 0:self.data_dict.tsteps]
+            print("DEBUG turboseti-stream self.data_dict.tsteps_valid - 1 - ts2:", self.data_dict.tsteps_valid - 1 - ts2)
+        drift_indexes = di_array[(self.data_dict.tsteps_valid - 1 - ts2), 0:self.data_dict.tsteps_valid]
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
 
@@ -186,11 +188,14 @@ class DopplerFinder():
             os.remove(path_dat)
         logwriter = LogWriter(path_log)
         filewriter = FileWriter(path_dat, self.header)
+        t1 = time.time()
         fd.search_coarse_channel(self.data_dict,
                                  self.find_doppler_instance,
                                  dataloader=self.dataloader,
                                  logwriter=logwriter,
                                  filewriter=filewriter)
+        print("turboseti-stream search_coarse_channel() completed in {:0.1f}s"
+              .format(time.time() - t1))
 
     def find_ET(self, spectra):
         self.dataloader.load(spectra)
