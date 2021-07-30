@@ -1,12 +1,12 @@
 r""" Test with synthetic data"""
 
-NUMPY_PATH = "/tmp/spectra.npy"
+FILTERBANK = "/tmp/spectra.fil"
 
 #-------------------------------------------------
 # Be sure to run spectra_gen_main.py first:
 #-------------------------------------------------
 # cd spectra_gen
-# python3  spectra_gen_main.py  NUMPY_PATH
+# python3  spectra_gen_main.py  FILTERBANK
 #-------------------------------------------------
 # Replace "/tmp/spectra.npy" with whatever path is suitable.
 #-------------------------------------------------
@@ -17,7 +17,7 @@ from main import DopplerFinder
 
 # Define observation parameters
 n_fine_chans = int(4e6) # setigen fchans
-ntime = 60 # seconds,     setigen tchans
+ntime = 64 # seconds,     setigen tchans
 f_start = 8437.625 # MHz, setigen fch1
 foff = 1e-6 # MHz,        setigen df
 f_stop = f_start + (n_fine_chans - 1) * foff # MHz
@@ -39,4 +39,4 @@ clancy = DopplerFinder(filename="CH0_TIMESTAMP.h5",
                        n_ints_in_file=ntime)
 
 print("Clancy is searching for ET")
-clancy.find_ET_from_synth(NUMPY_PATH)
+clancy.find_ET_from_synth(FILTERBANK)
