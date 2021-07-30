@@ -5,12 +5,11 @@ Main program for generating synthetic Gnu Radio spectra
 import os
 import time
 from argparse import ArgumentParser
-import numpy as np
 import setigen as stg
 from spectra_gen_defs import SetigenParms, VERSION, DEBUGGING
 
 
-def generate_npy_file(outpath):
+def generate_fil_file(outpath):
     r"""
     Using setigen, generate a filterbank file.
 
@@ -61,8 +60,8 @@ def generate_npy_file(outpath):
                               width=stg_parms.width_3,
                               f_profile_type="gaussian")
 
-    # Save the frame as a Numpy file.
-    frame.save_npy(outpath)
+    # Save the frame as a Filterbank file.
+    frame.save_fil(outpath)
     
     # Report npy characteristics
     file_size = os.path.getsize(outpath)
@@ -92,7 +91,7 @@ def main(args=None):
         args = parser.parse_args(args)
 
     fullpath = os.path.abspath(args.output_npy_path)
-    generate_npy_file(fullpath)
+    generate_fil_file(fullpath)
 
 
 if __name__ == "__main__":
