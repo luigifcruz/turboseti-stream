@@ -16,12 +16,13 @@ NUMPY_PATH = "/tmp/spectra.npy"
 from main import DopplerFinder
 
 # Define observation parameters
-f_start = 8437.625 # MHz
-foff = 1e-6 # MHz
-n_fine_chans = int(4e6)
+n_fine_chans = int(4e6) # setigen fchans
+ntime = 60 # seconds,     setigen tchans
+f_start = 8437.625 # MHz, setigen fch1
+foff = 1e-6 # MHz,        setigen df
 f_stop = f_start + (n_fine_chans - 1) * foff # MHz
-tsamp = 1 # seconds
-ntime = int(60) # seconds
+tsamp = 1 # seconds,      setigen dt
+
 mjd = 59423.2
 
 

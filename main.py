@@ -1,10 +1,14 @@
 import os
 import logging
 import numpy as np
+import math
 from pkg_resources import resource_filename
 
 from turbo_seti.find_doppler.kernels import *
 import turbo_seti.find_doppler.find_doppler as fd
+
+
+DEBUGGING = True
 
 
 class Map(dict):
@@ -77,7 +81,7 @@ class DopplerFinder():
 
         fftlen = n_fine_chans
         shoulder_size = 0
-        tsteps = n_ints_in_file
+        tsteps = int(math.pow(2, math.ceil(np.log2(math.floor(n_ints_in_file)))))
 
         # Data Object Header
         self.header = Map({
@@ -119,8 +123,8 @@ class DopplerFinder():
         self.data_dict = Map({
             "f_start": f_start,
             "f_stop": f_stop,
-            "tsteps": n_ints_in_file,
             "tsteps_valid": n_ints_in_file,
+            "tsteps": tsteps,
             "tdwidth": int(fftlen + shoulder_size * tsteps),
             "fftlen": n_fine_chans // n_coarse_chan,
             "shoulder_size": shoulder_size,
@@ -131,16 +135,20 @@ class DopplerFinder():
 
         # Create Custom Data Loader
         dia_num = int(np.log2(self.data_dict.tsteps))
-        print("DEBUG drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
         file_path = resource_filename('turbo_seti', f'drift_indexes/drift_indexes_array_{dia_num}.txt')
-        print("DEBUG drift_indexes file_path={}".format(file_path))
+        if DEBUGGING:
+            print("DEBUG drift_indexes tsteps={}, dia_num={}".format(self.data_dict.tsteps, dia_num))
+            print("DEBUG drift_indexes file_path={}".format(file_path))
+
         assert os.path.isfile(file_path) # File exists?
 
         di_array = np.array(np.genfromtxt(file_path, delimiter=' ', dtype=int))
-        print("DEBUG drift_indexes di_array.shape:", di_array.shape)
+        if DEBUGGING:
+            print("DEBUG drift_indexes di_array.shape:", di_array.shape)
 
         ts_mid = int(self.data_dict.tsteps / 2)
-        print("DEBUG self.data_dict.tsteps - 1 - ts_mid:", self.data_dict.tsteps - 1 - ts_mid)
+        if DEBUGGING:
+            print("DEBUG self.data_dict.tsteps - 1 - ts_mid:", self.data_dict.tsteps - 1 - ts_mid)
         drift_indexes = di_array[(self.data_dict.tsteps - 1 - ts_mid), 0:self.data_dict.tsteps]
 
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
