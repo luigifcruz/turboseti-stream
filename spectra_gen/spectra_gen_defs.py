@@ -2,11 +2,15 @@ r"""
 Data definitions for spectra_gen_main.py
 """
 
+import os
 from astropy import units as u
+from spectra_gen_config import ConfigObject
 
 
 VERSION = "1.0"
 DEBUGGING = False
+DIR = os.path.dirname(__file__)
+CFG_FILE = DIR + "/spectra_gen.cfg"
 
 
 class SetigenParms:
@@ -14,12 +18,14 @@ class SetigenParms:
 
     def __init__(self):
 
+        cfg = ConfigObject(CFG_FILE)
+
         # Parameters for all signals
-        self.fchans = int(4e6) # number of (fine) channels
-        self.tchans = 64 # number of time samples
-        self.df = 1e-6 * u.MHz # fine channel width in Hz
-        self.dt = 1.0 * u.s #sampling time in seconds
-        self.fch1 = 8437.625 * u.MHz # Starting frequency in MHz
+        self.fchans = cfg.fchans # number of (fine) channels
+        self.tchans = cfg.n_ints_in_file # number of time samples
+        self.df = cfg.df * u.MHz # fine channel width in MHz
+        self.dt = cfg.dt * u.s #sampling time in seconds
+        self.fch1 = cfg.fch1 * u.MHz # Starting frequency in MHz
         self.adding_noise = True # Add noise?
         self.noise_std = 0.05 # Gaussian standard deviation
         self.ascending = True # Ascending frequencies?
