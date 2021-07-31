@@ -5,8 +5,8 @@ This is especially useful for real-time pipelines where data need to be analysed
 
 The aim is to eventually integrate this piece of code into a GNURadio block to perform SETI searches with the platform.
 
-## Requirements:
-- [turboseti](https://github.com/UCBerkeleySETI/turbo_seti) (also submodule'd)
+## Requirements
+- [turbo_seti](https://github.com/UCBerkeleySETI/turbo_seti) (also submodule'd)
 - [setigen](https://github.com/bbrzycki/setigen)
 
 ## Running main.py from a Filterbank File
