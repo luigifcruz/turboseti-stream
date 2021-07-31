@@ -21,7 +21,7 @@ MAX_DRIFT_RATE = 10.0
 cfg = ConfigObject("spectra_gen/spectra_gen.cfg")
 
 # Define observation parameters
-n_fine_chans = cfg.fchans # setigen fchans
+n_fine_chans = cfg.n_fine_chans # setigen fchans
 f_start = cfg.fch1 # MHz, setigen fch1
 foff = cfg.df # MHz,        setigen df
 f_stop = f_start + (n_fine_chans - 1) * foff # MHz
