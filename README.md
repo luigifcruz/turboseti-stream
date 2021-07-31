@@ -8,3 +8,8 @@ The aim is to eventually integrate this piece of code into a GNURadio block to p
 ## Requirements:
 - [turboseti](https://github.com/UCBerkeleySETI/turbo_seti) (also submodule'd)
 - [setigen](https://github.com/bbrzycki/setigen)
+
+## Running main.py from a Filterbank File
+- Edit ```spectra_gen/spectra_gen.cfg``` and change parameter values as needed.  Do not add or delete any sections or parameters.
+- Run bash script ```mkspectra.sh``` which will regenerate ```/tmp/spectra.fil```.
+- Finally, run the ```test_synth_signal.py``` Python program to execute ```main.py``` against the new version of ```/tmp/spectra.fil```.
