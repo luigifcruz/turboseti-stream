@@ -1,4 +1,4 @@
 [submodule "turbo_seti"]
 	path = turbo_seti
-	url = git@github.com:luigifcruz/turbo_seti.git
+	url = git@github.com:UCBerkeleySETI/turbo_seti.git
 	branch = stream
