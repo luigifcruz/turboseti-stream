@@ -7,7 +7,17 @@ import time
 from astropy import units as u
 from argparse import ArgumentParser
 import setigen as stg
-from spectra_gen_defs import SetigenParms, VERSION, DEBUGGING
+from spectra_gen_config import ConfigObject
+
+
+DIR = os.path.dirname(__file__)
+CFG_FILE = DIR + "/spectra_gen.cfg"
+VERSION = "1.0"
+DEBUGGING = True
+
+
+def sig_start(nfreq, pct):
+    return (nfreq * pct / 100.0)
 
 
 def generate_fil_file(outpath):
@@ -21,42 +31,45 @@ def generate_fil_file(outpath):
     t1 = time.time()
 
     # Set up setigne parameters
-    stg_parms = SetigenParms()
+    cfg = ConfigObject(CFG_FILE)
 
     # Instantiate a setigen Frame object
-    frame = stg.Frame(fchans=stg_parms.fchans * u.pixel,
-                      tchans=stg_parms.tchans * u.pixel,
-                      df=stg_parms.df,
-                      dt=stg_parms.dt,
-                      fch1=stg_parms.fch1,
-                      ascending=(stg_parms.ascending))
+    print("spectra_gen_main: Building setigen frame")
+    frame = stg.Frame(fchans=cfg.n_fine_chans * u.pixel,
+                      tchans=cfg.n_ints_in_file * u.pixel,
+                      df=cfg.df * u.MHz,
+                      dt=cfg.dt * u.s,
+                      fch1=cfg.fch1 * u.MHz,
+                      ascending=(cfg.ascending))
 
     # Add noise to stg object.
-    if stg_parms.adding_noise:
-        frame.add_noise(x_mean=10, noise_type='chi2')
+    print("spectra_gen_main: Adding noise")
+    if cfg.adding_noise:
+        frame.add_noise(x_mean=cfg.noise_x_mean, noise_type="chi2")
+    print("spectra_gen_main: Adding signals")
 
     # Signal 1 will be detected.
-    signal_1_intensity = frame.get_intensity(snr=stg_parms.snr_1)
-    frame.add_constant_signal(f_start=frame.get_frequency(stg_parms.signal_start_1),
-                              drift_rate=stg_parms.drift_rate_1,
+    signal_1_intensity = frame.get_intensity(snr=cfg.snr_1)
+    frame.add_constant_signal(f_start=frame.get_frequency(sig_start(cfg.n_fine_chans, cfg.signal_start_1)),
+                              drift_rate=cfg.drift_rate_1,
                               level=signal_1_intensity,
-                              width=stg_parms.width_1,
+                              width=cfg.width_1,
                               f_profile_type="gaussian")
 
     # Signal 2 will be detected.
-    signal_2_intensity = frame.get_intensity(snr=stg_parms.snr_2)
-    frame.add_constant_signal(f_start=frame.get_frequency(stg_parms.signal_start_2),
-                              drift_rate=stg_parms.drift_rate_2,
+    signal_2_intensity = frame.get_intensity(snr=cfg.snr_2)
+    frame.add_constant_signal(f_start=frame.get_frequency(sig_start(cfg.n_fine_chans, cfg.signal_start_2)),
+                              drift_rate=cfg.drift_rate_2,
                               level=signal_2_intensity,
-                              width=stg_parms.width_2,
+                              width=cfg.width_2,
                               f_profile_type="gaussian")
 
     # Signal 3 will be detected.
-    signal_3_intensity = frame.get_intensity(snr=stg_parms.snr_3)
-    frame.add_constant_signal(f_start=frame.get_frequency(stg_parms.signal_start_3),
-                              drift_rate=stg_parms.drift_rate_3,
+    signal_3_intensity = frame.get_intensity(snr=cfg.snr_3)
+    frame.add_constant_signal(f_start=frame.get_frequency(sig_start(cfg.n_fine_chans, cfg.signal_start_3)),
+                              drift_rate=cfg.drift_rate_3,
                               level=signal_3_intensity,
-                              width=stg_parms.width_3,
+                              width=cfg.width_3,
                               f_profile_type="gaussian")
 
     # Save the frame as a Filterbank file.
@@ -95,6 +108,6 @@ def main(args=None):
 
 if __name__ == "__main__":
     if DEBUGGING:
-        main(["/tmp/spectra.npy"])
+        main(["/tmp/spectra.fil"])
     else:
         main()
