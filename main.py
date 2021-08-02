@@ -216,6 +216,9 @@ class DopplerFinder():
             os.remove(path_log)
         if os.path.exists(path_dat):
             os.remove(path_dat)
+        with open(path_log, "w") as fav:
+            fav.write("turboseti-stream find_doppler_instance: {}\n\n".format(self.find_doppler_instance))
+            fav.write("turboseti-stream data_dict: {}\n\n".format(self.data_dict))
         logwriter = LogWriter(path_log)
         filewriter = FileWriter(path_dat, self.header)
         t1 = time.time()
@@ -224,9 +227,12 @@ class DopplerFinder():
                                  dataloader=self.dataloader,
                                  logwriter=logwriter,
                                  filewriter=filewriter)
+        msg = "\nturboseti-stream search_coarse_channel() completed in {:0.1f}s\n" \
+              .format(time.time() - t1)
+        with open(path_log, "a") as fav:
+            fav.write(msg)
         if DEBUGGING:
-            print("DEBUG turboseti-stream search_coarse_channel() completed in {:0.1f}s"
-              .format(time.time() - t1))
+            print(msg)
 
 
     def find_ET(self, spectra):
