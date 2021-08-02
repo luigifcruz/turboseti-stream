@@ -1,21 +1,24 @@
+r""" Code base for interfacing Gnu Radio functions with turbo_seti """
+
 import os
 import time
 import logging
-import numpy as np
 import math
+import numpy as np
 from pkg_resources import resource_filename
 
 import setigen as stg
-from turbo_seti.find_doppler.kernels import *
+from turbo_seti.find_doppler.kernels import Kernels
 import turbo_seti.find_doppler.find_doppler as fd
 from turbo_seti.find_doppler.file_writers import FileWriter, LogWriter
 
 
-DEBUGGING = True
+DEBUGGING = False
 
 
 class Map(dict):
-    """
+    r"""
+    A derivative of the Python dict class
     Example:
     m = Map({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
     """
@@ -47,29 +50,47 @@ class Map(dict):
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
 
+
 class DataLoader():
+    r""" Load the data matrix (spectra), either by:
+        1. A Gnu Radio function delivering telescope data.
+        2. Synthetic data created by spectra_gen which uses setigen and configuration definitions.
+
+        The later is used for unit/regression testing - see test_synth_data.py.
+    """
+
 
     def __init__(self, data_obj, drift_indices):
         self.drift_indices = drift_indices
         self.data_obj = data_obj
+        self.spectra = [0, 0]
         if DEBUGGING:
             print("DEBUG turboseti-stream DataLoader __init__: data_obj:", self.data_obj)
 
+
     def load(self, spectra):
+        r""" Load telescope data from a Gnu Radio function """
         self.spectra = spectra
         if DEBUGGING:
             print("DEBUG turboseti-stream DataLoader load: spectra shape:", self.spectra.shape)
 
+
     def load_file(self, spectra_file_path):
+        r""" Load synthetic data created by spectra_gen which uses setigen """
         frame = stg.Frame(spectra_file_path)
         self.spectra = frame.data
         if DEBUGGING:
             print("DEBUG turboseti-stream DataLoader load_file: spectra shape:", self.spectra.shape)
 
+
     def get(self):
+        r""" called by turbo_seti find_doppler.py load_the_data() """
         return (self.data_obj, self.spectra, self.drift_indices)
 
+
 class DopplerFinder():
+    r""" Emulates the data portion of turbo_seti find_doppler find_doppler.py FindDoppler class """
+
 
     def __init__(self, filename, source_name, src_raj, src_dej,
                  tstart,
@@ -112,7 +133,9 @@ class DopplerFinder():
         tsteps_valid = n_ints_in_file
         tsteps = int(math.pow(2, math.ceil(np.log2(math.floor(n_ints_in_file)))))
 
-        # Data Object Header
+        # Data Object Header - not to be confused with a Filterbank/HDF5 file header!
+        # This will be used subsequently as an element of self.data_dict.
+        # In turbo_seti, this is created in find_doppler data_handler.py
         self.header = Map({
             "coarse_chan": 0, # Coarse channel number, NOT the same as n_coarse_chan == the amount of coarse channels?
             "obs_length": n_ints_in_file * tsamp,
@@ -128,7 +151,7 @@ class DopplerFinder():
             "max_drift_rate": max_drift,
         })
 
-        # Data Loader
+        # In turbo_seti, this object is nearly the same as the FindDoppler object.
         self.find_doppler_instance = Map({
             "data_handle": Map({
                 "filename": filename,
@@ -148,7 +171,7 @@ class DopplerFinder():
             "kernels": self.kernels,
         })
 
-        # Data Object
+        # In turbo_seti, this object is nearly the same as the DATAH5 object in data_handler.py.
         self.data_dict = Map({
             "f_start": f_start,
             "f_stop": f_stop,
@@ -162,7 +185,8 @@ class DopplerFinder():
             "header": self.header
         })
 
-        # Create Custom Data Loader
+        # Create Custom Data Loader to be used in find_doppler.py load_the_data().
+        # Start with the drift_indixes object.
         dia_num = int(np.log2(self.data_dict.tsteps))
         file_path = resource_filename('turbo_seti', f'drift_indexes/drift_indexes_array_{dia_num}.txt')
         if DEBUGGING:
@@ -180,7 +204,9 @@ class DopplerFinder():
             print("DEBUG turboseti-stream self.data_dict.tsteps_valid - 1 - ts2:", self.data_dict.tsteps_valid - 1 - ts2)
         drift_indexes = di_array[(self.data_dict.tsteps_valid - 1 - ts2), 0:self.data_dict.tsteps_valid]
 
+        # Create the DataLoader object.
         self.dataloader = DataLoader(self.data_dict, drift_indexes)
+
 
     def _find_ET_common(self):
         wfilename = self.filename.split('/')[-1].replace('.h5', '').replace('.fil', '')
@@ -202,17 +228,27 @@ class DopplerFinder():
             print("DEBUG turboseti-stream search_coarse_channel() completed in {:0.1f}s"
               .format(time.time() - t1))
 
+
     def find_ET(self, spectra):
+        r""" find ET using a spectra matrix supplied by Gnu Radio """
         self.dataloader.load(spectra)
         self._find_ET_common()
 
+
     def find_ET_from_file(self, spectra_file_path):
+        r""" find ET using a spectra matrix supplied by spectra_gen (synthetic) """
         self.dataloader.load_file(spectra_file_path)
         self._find_ET_common()
 
 
 # Example usage:
-# clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten", src_raj=7.456805, src_dej=5.225785,
-#                        tstart=0, tsamp=1, f_start=0, f_stop=1, n_fine_chans=1, n_ints_in_file=16)
-# clancy.find_ET(np.zeros((256)))
-# clancy.find_ET_from_file("/path-to-synthetic-gnu-radio-data.npy")
+# --------------
+# clancy = DopplerFinder(filename="CH0_TIMESTAMP", source_name="luyten",
+#                        src_raj=7.456805, src_dej=5.225785,
+#                        tstart=59423.2, tsamp=1, n_ints_in_file=16,
+#                        f_start=0, f_stop=1, n_fine_chans=2**20,
+#                        max_drift=4.0)
+#
+# clancy.find_ET(spectra_supplied_by_a_gnu_radio_function)
+# -or-
+# clancy.find_ET_from_file("/path-to-synthetic-gnu-radio-data.fil")
